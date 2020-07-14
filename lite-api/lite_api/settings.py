@@ -63,6 +63,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'lite_api.urls'
+LOGIN_URL = '/admin/login/'
 
 TEMPLATES = [
     {
