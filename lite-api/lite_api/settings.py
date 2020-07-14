@@ -69,12 +69,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'lite_api.urls'
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/api/exporters'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

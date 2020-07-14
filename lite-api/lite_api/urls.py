@@ -20,6 +20,7 @@ from lite_api.views import ExportersListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path("api/exporters", ExportersListView.as_view(), name="exporters")
 ]
