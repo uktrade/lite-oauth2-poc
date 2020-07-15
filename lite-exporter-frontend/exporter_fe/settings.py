@@ -82,10 +82,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'exporter_fe.wsgi.application'
 
+LOGIN_REDIRECT_URL = reverse_lazy("home")
+
 # Authbroker config
 AUTHBROKER_URL = env("AUTHBROKER_URL")
 AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
 AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
+
+# requests_oauthlib
+OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
