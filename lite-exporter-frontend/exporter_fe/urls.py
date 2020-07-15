@@ -1,4 +1,4 @@
-"""lite_api URL Configuration
+"""exporter_fe URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -16,12 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from lite_api import views
+from exporter_fe import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path("api/exporters", views.ExportersListView.as_view(), name="exporters"),
-    path("user-profile/", views.UserProfileView.as_view(), name="profile"),
+    path("admin/", admin.site.urls),
+    path("", views.Start.as_view(), name="start"),
+    path("index", views.Home.as_view(), name="home"),
+    path("auth/", include("auth.urls")),
 ]
