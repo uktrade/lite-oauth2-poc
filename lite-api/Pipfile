@@ -11,8 +11,10 @@ Django = "~=3.0"
 django-extensions = "*"
 django-environ = "~=0.4"
 djangorestframework = "~=3.9"
+django-staff-sso-client = "~=2.2.0"
 django-oauth-toolkit = "*"
 psycopg2 = "~=2.8"
+sentry-sdk = "*"
 
 [requires]
 python_version = "3.7"
