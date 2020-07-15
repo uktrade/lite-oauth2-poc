@@ -20,6 +20,7 @@ from exporter_fe import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.Home.as_view(), name="home"),
+    path("", views.Start.as_view(), name="start"),
+    path("index", views.Home.as_view(), name="home"),
     path("auth/", include("auth.urls")),
 ]
