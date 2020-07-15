@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from lite_api.views import ExportersListView
+from lite_api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path("api/exporters", ExportersListView.as_view(), name="exporters")
+    path("api/exporters", views.ExportersListView.as_view(), name="exporters"),
+    path("user-profile/", views.UserProfileView.as_view(), name="profile"),
 ]
