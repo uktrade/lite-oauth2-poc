@@ -13,8 +13,10 @@ from lite_api import serializers
 from lite_api.settings import env
 
 TOKEN_SESSION_KEY = env("TOKEN_SESSION_KEY")
-AUTHBROKER_URL = "http://localhost:8000"
+AUTHBROKER_URL = env("AUTHORIZATION_SERVER")
 AUTHORISATION_URL = urljoin(AUTHBROKER_URL, "o/authorize/")
+API_CLIENT_ID = env("API_CLIENT_ID")
+API_CLIENT_CALLBACK_URL = env("API_CLIENT_CALLBACK_URL")
 
 
 def get_oauth_client(request, client_id, callback_url, **kwargs):
@@ -31,11 +33,8 @@ def get_oauth_client(request, client_id, callback_url, **kwargs):
 class OAuthAuthorize(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
-        # TODO - Read from env
-        expfe_client_id = "12345"
-        expfe_callback_url = "http://localhost:8001/auth/callback"
         authorization_url, state = get_oauth_client(
-            self.request, expfe_client_id, expfe_callback_url
+            self.request, API_CLIENT_ID, API_CLIENT_CALLBACK_URL
         ).authorization_url(AUTHORISATION_URL)
 
         self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
