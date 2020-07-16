@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from django.urls import reverse_lazy
 from environ import Env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -69,8 +70,34 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'lite_api.urls'
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/api/exporters'
+
+# requests_oauthlib
+OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
+
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env('FEATURE_ENFORCE_STAFF_SSO_ENABLED', default=False)
+
+# authbroker config
+if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
+# if False:
+    INSTALLED_APPS.append("authbroker_client",)
+
+    AUTHBROKER_URL = env("AUTHBROKER_URL")
+    AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
+    AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
+    AUTHBROKER_TOKEN_SESSION_KEY = env("AUTHBROKER_TOKEN_SESSION_KEY")
+    AUTHBROKER_STAFF_SSO_SCOPE = env('AUTHBROKER_STAFF_SSO_SCOPE')
+    AUTHENTICATION_BACKENDS = [
+        "django.contrib.auth.backends.ModelBackend",
+        "authbroker_client.backends.AuthbrokerBackend",
+    ]
+
+    LOGIN_URL = reverse_lazy("authbroker_client:login")
+    # LOGIN_REDIRECT_URL = reverse_lazy("index")
+    LOGIN_REDIRECT_URL = reverse_lazy("oauth_init")
+else:
+    LOGIN_URL = "/accounts/login/"
+    LOGIN_REDIRECT_URL = '/api/exporters'
+
 
 TEMPLATES = [
     {
