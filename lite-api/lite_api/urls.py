@@ -21,7 +21,7 @@ from lite_api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('auth/', include('authbroker_client.urls')),
+    path('auth/', include('auth.urls')),
     path("index", views.Home.as_view(), name="index"),
     path('accounts/', include('django.contrib.auth.urls')),
     path('oauth-init', views.OAuthAuthorize.as_view(), name="oauth_init"),

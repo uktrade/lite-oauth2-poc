@@ -4,18 +4,16 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
+
 from requests_oauthlib import OAuth2Session
 
-from exporter_fe.settings import env
 
-# Variables for Authorization server
-TOKEN_SESSION_KEY = env("TOKEN_SESSION_KEY")
-PROFILE_URL = urljoin(settings.AUTHBROKER_URL, "user-profile/")
-INTROSPECT_URL = urljoin(settings.AUTHBROKER_URL, "o/introspect/")
-TOKEN_URL = urljoin(settings.AUTHBROKER_URL, "o/token/")
-AUTHORISATION_URL = urljoin(settings.AUTHBROKER_URL, "o/authorize/")
+TOKEN_SESSION_KEY = "_authbroker_token"
+PROFILE_URL = urljoin(settings.AUTHBROKER_URL, "sso/oauth2/user-profile/v1/")
+INTROSPECT_URL = urljoin(settings.AUTHBROKER_URL, "sso/oauth2/introspect/")
+TOKEN_URL = urljoin(settings.AUTHBROKER_URL, "sso/oauth2/token/")
+AUTHORISATION_URL = urljoin(settings.AUTHBROKER_URL, "sso/oauth2/authorize/")
 TOKEN_CHECK_PERIOD_SECONDS = 60
-SCOPE = "profile"
 
 
 def get_client(request, **kwargs):
@@ -25,9 +23,14 @@ def get_client(request, **kwargs):
     return OAuth2Session(
         settings.AUTHBROKER_CLIENT_ID,
         redirect_uri=redirect_uri,
+        scope=get_scope(),
         token=request.session.get(TOKEN_SESSION_KEY, None),
-        **kwargs,
+        **kwargs
     )
+
+
+def get_scope():
+    return getattr(settings, "AUTHBROKER_STAFF_SSO_SCOPE", "read write")
 
 
 def has_valid_token(client):
@@ -48,7 +51,7 @@ def authbroker_login_required(func):
     @functools.wraps(func)
     def decorated(request):
         if not has_valid_token(get_client(request)):
-            return redirect("auth:login")
+            return redirect("authbroker:login")
 
         return func(request)
 
