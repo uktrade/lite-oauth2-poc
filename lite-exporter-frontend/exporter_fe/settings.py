@@ -80,6 +80,8 @@ TEMPLATES = [
     },
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
 WSGI_APPLICATION = 'exporter_fe.wsgi.application'
 
 LOGIN_REDIRECT_URL = reverse_lazy("home")
