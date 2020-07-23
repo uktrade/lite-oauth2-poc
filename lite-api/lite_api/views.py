@@ -38,12 +38,13 @@ def add_params_to_url(source_url, params):
     return urlparse.urlunparse(url_parts)
 
 
-def get_oauth_client(request, client_id, callback_url, **kwargs):
+def get_oauth_client(request, state, client_id, callback_url, **kwargs):
     redirect_uri = request.build_absolute_uri(callback_url)
 
     return OAuth2Session(
         client_id,
         redirect_uri=redirect_uri,
+        state=state,
         token=request.session.get(TOKEN_SESSION_KEY, None),
         **kwargs,
     )
@@ -54,9 +55,10 @@ class OAuthAuthorize(RedirectView):
 
         client_id = self.request.GET["client_id"]
         client_callback_url = self.request.GET["client_callback_url"]
+        state = self.request.GET["state"]
 
         authorization_url, state = get_oauth_client(
-            self.request, client_id, client_callback_url
+            self.request, state, client_id, client_callback_url
         ).authorization_url(AUTHORISATION_URL)
 
         self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
@@ -78,6 +80,7 @@ class LoginView(RedirectView):
                 {
                     "client_id": EXPORTER_FE_API_CLIENT_ID,
                     "client_callback_url": EXPORTER_FE_API_CLIENT_CALLBACK_URL,
+                    "state": query.get("state"),
                 },
             )
             return reverse("auth:login")
