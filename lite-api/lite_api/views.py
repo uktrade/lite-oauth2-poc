@@ -26,6 +26,7 @@ EXPORTER_FE_API_CLIENT_CALLBACK_URL = env("EXPORTER_FE_API_CLIENT_CALLBACK_URL")
 INTERNAL_FE_API_CLIENT_ID = env("INTERNAL_FE_API_CLIENT_ID")
 INTERNAL_FE_API_CLIENT_CALLBACK_URL = env("INTERNAL_FE_API_CLIENT_CALLBACK_URL")
 
+
 def add_params_to_url(source_url, params):
 
     url_parts = list(urlparse.urlparse(source_url))

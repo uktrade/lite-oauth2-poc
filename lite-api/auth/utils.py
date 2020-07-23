@@ -16,6 +16,7 @@ PROFILE_URL = urljoin(AUTHBROKER_URL, "sso/oauth2/user-profile/v1/")
 INTROSPECT_URL = urljoin(AUTHBROKER_URL, "sso/oauth2/introspect/")
 TOKEN_URL = urljoin(AUTHBROKER_URL, "sso/oauth2/token/")
 AUTHORISATION_URL = urljoin(AUTHBROKER_URL, "sso/oauth2/authorize/")
+SCOPE = "profile"
 TOKEN_CHECK_PERIOD_SECONDS = 60
 
 
@@ -26,14 +27,10 @@ def get_client(request, **kwargs):
     return OAuth2Session(
         AUTHBROKER_CLIENT_ID,
         redirect_uri=redirect_uri,
-        scope=get_scope(),
+        scope=SCOPE,
         token=request.session.get(TOKEN_SESSION_KEY, None),
         **kwargs
     )
-
-
-def get_scope():
-    return getattr(settings, "DIRECTORY_SSO_AUTHBROKER_STAFF_SSO_SCOPE", "read write")
 
 
 def has_valid_token(client):
@@ -44,18 +41,3 @@ def has_valid_token(client):
 
 def get_profile(client):
     return client.get(PROFILE_URL).json()
-
-
-def authbroker_login_required(func):
-    """Check that the current session has authenticated with the authbroker and has a valid token.
-    This is different to the @login_required decorator in that it only checks for a valid authbroker Oauth2 token,
-    not an authenticated django user."""
-
-    @functools.wraps(func)
-    def decorated(request):
-        if not has_valid_token(get_client(request)):
-            return redirect("authbroker:login")
-
-        return func(request)
-
-    return decorated

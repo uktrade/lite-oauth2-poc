@@ -1,3 +1,4 @@
+import secrets
 import urllib.parse as urlparse
 
 from urllib.parse import urlencode
@@ -6,9 +7,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes
 from django.views.generic.base import RedirectView, View
 
 from auth.utils import get_client, AUTHORISATION_URL, TOKEN_SESSION_KEY, TOKEN_URL, get_profile
+
+
+def constant_time_compare(val1, val2):
+    """Return True if the two strings are equal, False otherwise."""
+    return secrets.compare_digest(force_bytes(val1), force_bytes(val2))
 
 
 def add_user_type_to_url(source_url, params):
@@ -44,12 +51,17 @@ class AuthCallbackView(View):
 
     def get(self, request, *args, **kwargs):
         auth_code = request.GET.get("code", None)
+        auth_state = request.GET.get("state", None)
+
         if not auth_code:
             return redirect(reverse_lazy("auth:login"))
 
         state = request.GET.get("state", None)
 
         if not state:
+            return HttpResponseServerError()
+
+        if not constant_time_compare(auth_state, state):
             return HttpResponseServerError()
 
         client = get_client(self.request)
@@ -60,6 +72,8 @@ class AuthCallbackView(View):
             )
 
             self.request.session[TOKEN_SESSION_KEY] = dict(token)
+
+            # del self.request.session[TOKEN_SESSION_KEY + "_oauth_state"]
 
         except Exception:
             raise Exception

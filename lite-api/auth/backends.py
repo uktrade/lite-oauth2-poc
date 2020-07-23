@@ -12,18 +12,21 @@ class AuthbrokerBackend:
         User = get_user_model()
 
         profile = get_profile(client)
-        if not profile.get("email", None):
+        if not profile.get("email"):
             return
+
+        if not profile.get("user_profile"):
+            raise ValueError("user_profile details missing in profile")
 
         user, created = User.objects.get_or_create(
             email=profile["email"],
             defaults={
+                "email": profile["email"],
                 "first_name": profile["user_profile"]["first_name"],
                 "last_name": profile["user_profile"]["last_name"],
             },
         )
         if created:
-            user.username = profile["email"]
             user.set_unusable_password()
             user.save()
         return user
