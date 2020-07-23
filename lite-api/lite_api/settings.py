@@ -78,20 +78,26 @@ FEATURE_ENFORCE_STAFF_SSO_ENABLED = env('FEATURE_ENFORCE_STAFF_SSO_ENABLED', def
 
 # authbroker config
 if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
-# if False:
-    # INSTALLED_APPS.append("authbroker_client",)
+    INSTALLED_APPS.append("authbroker_client",)
 
     AUTHBROKER_URL = env("AUTHBROKER_URL")
     AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
     AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
     AUTHBROKER_TOKEN_SESSION_KEY = env("AUTHBROKER_TOKEN_SESSION_KEY")
     AUTHBROKER_STAFF_SSO_SCOPE = env('AUTHBROKER_STAFF_SSO_SCOPE')
+
+    DIRECTORY_SSO_AUTHBROKER_URL = env("DIRECTORY_SSO_AUTHBROKER_URL")
+    DIRECTORY_SSO_AUTHBROKER_CLIENT_ID = env("DIRECTORY_SSO_AUTHBROKER_CLIENT_ID")
+    DIRECTORY_SSO_AUTHBROKER_CLIENT_SECRET = env("DIRECTORY_SSO_AUTHBROKER_CLIENT_SECRET")
+    DIRECTORY_SSO_AUTHBROKER_STAFF_SSO_SCOPE = env('DIRECTORY_SSO_AUTHBROKER_STAFF_SSO_SCOPE')
+
     AUTHENTICATION_BACKENDS = [
         "django.contrib.auth.backends.ModelBackend",
         "auth.backends.AuthbrokerBackend",
+        "authbroker_client.backends.AuthbrokerBackend",
     ]
 
-    LOGIN_URL = reverse_lazy("auth:login")
+    LOGIN_URL = reverse_lazy("user_login")
     LOGIN_REDIRECT_URL = reverse_lazy("oauth_init")
 else:
     LOGIN_URL = "/accounts/login/"

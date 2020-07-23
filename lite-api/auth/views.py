@@ -4,7 +4,7 @@ from django.http import HttpResponseBadRequest, HttpResponseServerError
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 
-from auth.utils import get_client, AUTHORISATION_URL, TOKEN_URL, TOKEN_SESSION_KEY
+from auth.utils import get_client, AUTHORISATION_URL, TOKEN_URL, TOKEN_SESSION_KEY, AUTHBROKER_CLIENT_SECRET
 
 
 class AuthView(RedirectView):
@@ -38,7 +38,7 @@ class AuthCallbackView(View):
         try:
             token = get_client(self.request).fetch_token(
                 TOKEN_URL,
-                client_secret=settings.AUTHBROKER_CLIENT_SECRET,
+                client_secret=AUTHBROKER_CLIENT_SECRET,
                 code=auth_code,
             )
 
