@@ -19,7 +19,6 @@ def add_user_type_to_url(source_url, params):
 
     url_parts[4] = urlencode(query)
 
-    print(urlparse.urlunparse(url_parts))
     return urlparse.urlunparse(url_parts)
 
 

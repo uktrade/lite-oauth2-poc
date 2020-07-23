@@ -1,11 +1,25 @@
+import urllib.parse as urlparse
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.base import RedirectView, View
+from urllib.parse import urlencode
 
 from auth.utils import get_client, AUTHORISATION_URL, TOKEN_SESSION_KEY, TOKEN_URL, get_profile
+
+
+def add_user_type_to_url(source_url, params):
+
+    url_parts = list(urlparse.urlparse(source_url))
+    query = dict(urlparse.parse_qsl(url_parts[4]))
+    query.update(params)
+
+    url_parts[4] = urlencode(query)
+
+    return urlparse.urlunparse(url_parts)
 
 
 class AuthView(RedirectView):
@@ -18,7 +32,9 @@ class AuthView(RedirectView):
 
         self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
 
-        return authorization_url
+        updated_url = add_user_type_to_url(authorization_url, {"user_type": "internal"})
+
+        return updated_url
 
 
 class AuthCallbackView(View):

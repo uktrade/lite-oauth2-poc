@@ -18,8 +18,6 @@ from lite_api.settings import env
 TOKEN_SESSION_KEY = env("TOKEN_SESSION_KEY")
 AUTHORIZATION_SERVER = env("AUTHORIZATION_SERVER")
 AUTHORISATION_URL = urljoin(AUTHORIZATION_SERVER, "o/authorize/")
-API_CLIENT_ID = env("API_CLIENT_ID")
-API_CLIENT_CALLBACK_URL = env("API_CLIENT_CALLBACK_URL")
 
 LOGIN_REDIRECT_URL = settings.LOGIN_REDIRECT_URL
 
@@ -81,9 +79,8 @@ class LoginView(RedirectView):
                     "client_callback_url": EXPORTER_FE_API_CLIENT_CALLBACK_URL,
                 },
             )
-            print(f"========> {settings.LOGIN_REDIRECT_URL}")
             return reverse("auth:login")
-        else:
+        elif user_type == "internal":
             settings.LOGIN_REDIRECT_URL = add_params_to_url(
                 reverse("oauth_init"),
                 {
@@ -91,8 +88,9 @@ class LoginView(RedirectView):
                     "client_callback_url": INTERNAL_FE_API_CLIENT_CALLBACK_URL,
                 },
             )
-            print(f"========> {settings.LOGIN_REDIRECT_URL}")
-            return reverse("authbroker:login")
+            return reverse("authbroker_client:login")
+        else:
+            return reverse("login")
 
 
 class Home(ProtectedResourceView, GenericAPIView):
