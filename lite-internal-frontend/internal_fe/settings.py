@@ -80,6 +80,8 @@ TEMPLATES = [
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", True)
+SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="internal")
 
 WSGI_APPLICATION = 'internal_fe.wsgi.application'
 

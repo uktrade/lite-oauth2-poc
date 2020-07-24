@@ -57,7 +57,7 @@ class OAuthAuthorize(RedirectView):
         client_callback_url = self.request.GET["client_callback_url"]
         state = self.request.GET["state"]
 
-        authorization_url, state = get_oauth_client(
+        authorization_url, _state = get_oauth_client(
             self.request, state, client_id, client_callback_url
         ).authorization_url(AUTHORISATION_URL)
 
@@ -90,6 +90,7 @@ class LoginView(RedirectView):
                 {
                     "client_id": INTERNAL_FE_API_CLIENT_ID,
                     "client_callback_url": INTERNAL_FE_API_CLIENT_CALLBACK_URL,
+                    "state": query.get("state"),
                 },
             )
             return reverse("authbroker_client:login")

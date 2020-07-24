@@ -56,8 +56,7 @@ class AuthCallbackView(View):
         if not auth_code:
             return redirect(reverse_lazy("auth:login"))
 
-        state = request.GET.get("state", None)
-
+        state = self.request.session.get(TOKEN_SESSION_KEY + "_oauth_state", None)
         if not state:
             return HttpResponseServerError()
 
@@ -73,7 +72,7 @@ class AuthCallbackView(View):
 
             self.request.session[TOKEN_SESSION_KEY] = dict(token)
 
-            # del self.request.session[TOKEN_SESSION_KEY + "_oauth_state"]
+            del self.request.session[TOKEN_SESSION_KEY + "_oauth_state"]
 
         except Exception:
             raise Exception

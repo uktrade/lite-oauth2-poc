@@ -71,6 +71,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'lite_api.urls'
 
+SESSION_COOKIE_SECURE = False
+
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
 
