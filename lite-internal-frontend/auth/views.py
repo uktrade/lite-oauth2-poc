@@ -1,7 +1,6 @@
 import secrets
 import urllib.parse as urlparse
 
-from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseServerError
@@ -9,6 +8,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes
 from django.views.generic.base import RedirectView, View
+from urllib.parse import urlencode
 
 from auth.utils import get_client, AUTHORISATION_URL, TOKEN_SESSION_KEY, TOKEN_URL, get_profile
 
@@ -39,7 +39,7 @@ class AuthView(RedirectView):
 
         self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
 
-        updated_url = add_user_type_to_url(authorization_url, {"user_type": "exporter"})
+        updated_url = add_user_type_to_url(authorization_url, {"user_type": "internal"})
 
         return updated_url
 

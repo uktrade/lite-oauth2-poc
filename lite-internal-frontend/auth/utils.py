@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from requests_oauthlib import OAuth2Session
 
-from exporter_fe.settings import env
+from internal_fe.settings import env
 
 # Variables for Authorization server
 TOKEN_SESSION_KEY = env("TOKEN_SESSION_KEY")
