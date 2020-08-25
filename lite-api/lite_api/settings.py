@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'oauth2_provider',
+
+    'allauth.socialaccount.providers.auth0',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -170,3 +172,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Django Allauth 
+SOCIALACCOUNT_PROVIDERS = {
+    'auth0': {
+        'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL')
+    }
+}
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'auth0': {
+        'APP': {
+            'client_id': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_ID'),
+            'secret': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_SECRET'),
+            'key': ''
+        }
+    }
+}
