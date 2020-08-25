@@ -30,4 +30,5 @@ urlpatterns = [
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path("api/exporters", views.ExportersListView.as_view(), name="exporters"),
     path("user-profile/", views.UserProfileView.as_view(), name="profile"),
+    path("allauth-accounts/", include('allauth.urls')),
 ]

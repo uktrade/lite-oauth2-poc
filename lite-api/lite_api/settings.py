@@ -49,15 +49,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django.contrib.sites',
     'rest_framework',
     'oauth2_provider',
-
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'allauth.socialaccount.providers.auth0',
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'oauth2_provider.backends.OAuth2Backend',
+    # 'oauth2_provider.backends.OAuth2Backend',
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 MIDDLEWARE = [
@@ -79,8 +83,7 @@ SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="api")
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
 
-FEATURE_ENFORCE_STAFF_SSO_ENABLED = env('FEATURE_ENFORCE_STAFF_SSO_ENABLED', default=False)
-
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED', default=False)
 # authbroker config
 if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     INSTALLED_APPS.append("authbroker_client",)
@@ -173,21 +176,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+SITE_ID = 1
 
 # Django Allauth 
-SOCIALACCOUNT_PROVIDERS = {
-    'auth0': {
-        'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL')
-    }
-}
-
-# Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     'auth0': {
         'APP': {
             'client_id': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_ID'),
             'secret': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_SECRET'),
             'key': ''
-        }
-    }
+        },
+        'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL'),
+    },
 }
