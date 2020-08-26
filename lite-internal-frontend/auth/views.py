@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.views.generic.base import RedirectView, View
 from urllib.parse import urlencode
@@ -35,13 +35,7 @@ class AuthView(RedirectView):
     """
 
     def get_redirect_url(self, *args, **kwargs):
-        authorization_url, state = get_client(self.request).authorization_url(AUTHORISATION_URL)
-
-        self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
-
-        updated_url = add_user_type_to_url(authorization_url, {"user_type": "internal"})
-
-        return updated_url
+        return f'{settings.AUTHBROKER_LOGIN_URL}?next={self.request.build_absolute_uri(reverse("home"))}'
 
 
 class AuthCallbackView(View):

@@ -89,6 +89,8 @@ LOGIN_REDIRECT_URL = reverse_lazy("home")
 
 # Authbroker config
 AUTHBROKER_URL = env("AUTHBROKER_URL")
+
+AUTHBROKER_LOGIN_URL = f'{AUTHBROKER_URL}/allauth-accounts/login/'
 AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
 AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
 
@@ -103,9 +105,9 @@ AUTHENTICATION_BACKENDS = [
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db(),
-}
+# DATABASES = {
+#     'default': env.db(),
+# }
 
 
 # Password validation

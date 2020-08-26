@@ -23,7 +23,6 @@ if os.path.exists(ENV_FILE):
     Env.read_env(ENV_FILE)
 
 env = Env(
-    ALLOWED_HOSTS=(str, ""),
     DEBUG=(bool, False),
 )
 
@@ -36,7 +35,7 @@ SECRET_KEY =  env('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 
 # Application definition
@@ -56,10 +55,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.auth0',
+    'lite_api.apps.LiteApiConfig',
 ]
 
 AUTHENTICATION_BACKENDS = (
-    # 'oauth2_provider.backends.OAuth2Backend',
+    'oauth2_provider.backends.OAuth2Backend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
@@ -105,7 +105,7 @@ if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     ]
 
     LOGIN_URL = reverse_lazy("user_login")
-    LOGIN_REDIRECT_URL = reverse_lazy("oauth_init")
+    LOGIN_REDIRECT_URL = '/'
 else:
     LOGIN_URL = "/accounts/login/"
     LOGIN_REDIRECT_URL = '/api/exporters'
@@ -175,6 +175,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 SITE_ID = 1
 
@@ -189,3 +191,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL'),
     },
 }
+
+
+ALLOWED_REDIRECT_HOSTS = ['localhost:9000', 'localhost:9001']
+
+ACCOUNT_ADAPTER = 'auth.adapters.AccountAdapter'
