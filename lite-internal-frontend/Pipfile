@@ -12,6 +12,7 @@ django-environ = "~=0.4"
 psycopg2 = "~=2.8"
 requests = "~=2.21"
 requests-oauthlib = "~=1.3"
+django-allauth = "*"
 python-jwt = "*"
 
 [requires]

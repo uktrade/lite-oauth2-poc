@@ -49,7 +49,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.auth0',
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -97,17 +107,12 @@ AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "auth.backends.AuthbrokerBackend",
-]
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': env.db(),
-# }
+DATABASES = {
+    'default': env.db(),
+}
 
 
 # Password validation
@@ -147,3 +152,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Django Allauth
+SOCIALACCOUNT_PROVIDERS = {
+    'auth0': {
+        'APP': {
+            'client_id': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_ID'),
+            'secret': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_SECRET'),
+            'key': ''
+        },
+        'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL'),
+    },
+}
+
+SOCIALACCOUNT_ADAPTER = 'auth.adapters.SocialAccountAdapter'
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+SITE_ID = 1

@@ -5,4 +5,6 @@
 <h3>Logged in user details</h3>
 <p>{{ profile.first_name }} {{ profile.last_name }}</p>
 <p>{{ profile.email }}</p>
+
+<a href="{% url 'account_logout' %}">Click here to log out</a>
 {% endblock %}

@@ -23,4 +23,5 @@ urlpatterns = [
     path("", views.Start.as_view(), name="start"),
     path("index", views.Home.as_view(), name="home"),
     path("auth/", include("auth.urls")),
+    path("allauth-accounts/", include('allauth.urls')),
 ]
