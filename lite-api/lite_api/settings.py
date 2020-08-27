@@ -75,7 +75,7 @@ SIMPLE_JWT = {
     # 'BLACKLIST_AFTER_ROTATION': True,
 
     'ALGORITHM': 'RS256',
-    # 'VERIFYING_KEY': None,
+    'VERIFYING_KEY': '\n'.join(env.list('JWT_VERIFICATION_KEY')),
     # 'AUDIENCE': None,
     # 'ISSUER': None,
     # 'AUTH_HEADER_TYPES': ('Bearer',),

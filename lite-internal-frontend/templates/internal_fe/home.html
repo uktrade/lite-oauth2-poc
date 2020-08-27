@@ -6,5 +6,9 @@
 <p>{{ profile.first_name }} {{ profile.last_name }}</p>
 <p>{{ profile.email }}</p>
 
-{{ request.session.jwt }}
+<h3>API says</h3>
+<p>{{ api_says }} {{ api_says.content }}{% if api_says.status_code == 200 %}: {{ response.json }}{% endif %}</p>
+
+JWT: {{ request.session.jwt }}
+
 {% endblock %}
