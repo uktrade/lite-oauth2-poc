@@ -17,6 +17,7 @@ psycopg2 = "~=2.8"
 sentry-sdk = "*"
 django-allauth = "*"
 python-jwt = "*"
+djangorestframework-simplejwt = "*"
 
 [requires]
 python_version = "3.7"

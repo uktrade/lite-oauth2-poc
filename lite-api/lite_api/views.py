@@ -9,7 +9,6 @@ from django.views.generic.base import RedirectView
 from requests_oauthlib import OAuth2Session
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
-from oauth2_provider.views import ProtectedResourceView
 from urllib.parse import urljoin, urlencode
 
 from lite_api import serializers
@@ -98,14 +97,14 @@ class LoginView(RedirectView):
             return reverse("login")
 
 
-class Home(ProtectedResourceView, GenericAPIView):
+class Home(GenericAPIView):
     def get(self, request, *args, **kwargs):
         return JsonResponse(
             data={"status": "Hello World !!"}, status=status.HTTP_200_OK,
         )
 
 
-class ExportersListView(ProtectedResourceView):
+class ExportersListView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         users = User.objects.filter(is_active=True, is_superuser=False)
         serializer = serializers.UserSerializer(users, many=True)
@@ -115,7 +114,7 @@ class ExportersListView(ProtectedResourceView):
         )
 
 
-class UserProfileView(ProtectedResourceView):
+class UserProfileView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         return HttpResponse(
             json.dumps(
