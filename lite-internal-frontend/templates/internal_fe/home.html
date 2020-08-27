@@ -6,5 +6,5 @@
 <p>{{ profile.first_name }} {{ profile.last_name }}</p>
 <p>{{ profile.email }}</p>
 
-<a href="{% url 'account_logout' %}">Click here to log out</a>
+{{ request.session.jwt }}
 {% endblock %}

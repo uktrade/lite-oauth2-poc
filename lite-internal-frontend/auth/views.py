@@ -72,3 +72,19 @@ class AuthCallbackView(View):
             raise Exception
 
         return redirect(getattr(settings, "LOGIN_REDIRECT_URL", "/"))
+
+
+from allauth.socialaccount.providers.auth0 import views 
+
+
+class Auth0OAuth2Adapter(views.Auth0OAuth2Adapter):
+    def complete_login(self, request, app, token, response):
+        request.session['jwt'] = response['id_token']
+        return super().complete_login(request, app, token, response)
+
+    def get_callback_url(self, request, app):
+        return request.build_absolute_uri(reverse('auth:callback'))
+
+ 
+oauth2_login = views.OAuth2LoginView.adapter_view(Auth0OAuth2Adapter)
+oauth2_callback = views.OAuth2CallbackView.adapter_view(Auth0OAuth2Adapter)

@@ -16,15 +16,3 @@ class Start(TemplateView):
 
 class Home(TemplateView):
     template_name = "internal_fe/home.html"
-
-    def dispatch(self, request):
-        if "jwt" in request.GET:
-            request.session["jwt"] = self.request.GET["jwt"]
-            return redirect(request.path)
-        return super().dispatch(request)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if "jwt" in self.request.session:
-            _, context["profile"] = jwt.process_jwt(self.request.session["jwt"])
-        return context
