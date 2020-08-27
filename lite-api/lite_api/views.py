@@ -9,6 +9,7 @@ from django.views.generic.base import RedirectView
 from requests_oauthlib import OAuth2Session
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
+from rest_framework import permissions, generics, mixins
 from urllib.parse import urljoin, urlencode
 
 from lite_api import serializers
@@ -100,8 +101,20 @@ class LoginView(RedirectView):
 class Home(GenericAPIView):
     def get(self, request, *args, **kwargs):
         return JsonResponse(
-            data={"status": "Hello World !!"}, status=status.HTTP_200_OK,
+            data={"status": f"Hello {request.user.first_name}"}, status=status.HTTP_200_OK,
         )
+
+class CreateDestroyUser(mixins.CreateModelMixin, GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = serializers.UserSerializer
+    http_method_names = ['post', 'delete']
+
+    def post(self, request):
+        return self.create(request)
+
+    def delete(self, request):
+        request.user.delete()
+        return JsonResponse(data={}, status=204)
 
 
 class ExportersListView(GenericAPIView):

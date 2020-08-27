@@ -1,5 +1,8 @@
 import secrets
 import urllib.parse as urlparse
+from urllib.parse import urlencode
+
+from allauth.socialaccount.providers.auth0 import views
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
@@ -8,7 +11,6 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.views.generic.base import RedirectView, View
-from urllib.parse import urlencode
 
 from auth.utils import get_client, AUTHORISATION_URL, TOKEN_SESSION_KEY, TOKEN_URL, get_profile
 
@@ -72,9 +74,6 @@ class AuthCallbackView(View):
             raise Exception
 
         return redirect(getattr(settings, "LOGIN_REDIRECT_URL", "/"))
-
-
-from allauth.socialaccount.providers.auth0 import views 
 
 
 class Auth0OAuth2Adapter(views.Auth0OAuth2Adapter):
