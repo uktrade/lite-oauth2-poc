@@ -37,7 +37,7 @@ def has_valid_token(client):
 
 
 def get_profile(client):
-    return client.get(PROFILE_URL).json()
+    return client.get(PROFILE_URL)
 
 
 def authbroker_login_required(func):

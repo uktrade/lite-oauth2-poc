@@ -79,7 +79,7 @@ class AuthCallbackView(View):
         except Exception:
             raise Exception
 
-        return redirect(getattr(settings, "LOGIN_REDIRECT_URL", "/"))
+        return redirect(settings.LOGIN_REDIRECT_URL)
 
 
 class Auth0OAuth2Adapter(views.Auth0OAuth2Adapter):

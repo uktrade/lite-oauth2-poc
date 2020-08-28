@@ -21,45 +21,49 @@ def get_api_response(token):
 
 
 def create_user(**data):
-    response = requests.post(f'{settings.LITE_API_URL}/user/', data=data)
+    response = requests.post(f'{settings.LITE_API_URL}/user-profile/', data=data)
     response.raise_for_status()
 
 def delete_user(token):
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.delete(f'{settings.LITE_API_URL}/user/', headers=headers)
+    response = requests.delete(f'{settings.LITE_API_URL}/user-profile/', headers=headers)
     response.raise_for_status()
-
-
-class Start(TemplateView):
-    template_name = "internal_fe/start.html"
 
 
 class Home(TemplateView):
     template_name = "internal_fe/home.html"
 
+    @property
+    def api_bearer_token(self):
+        if 'jwt' in self.request.session:
+            return self.request.session['jwt']
+        elif settings.TOKEN_SESSION_KEY in self.request.session:
+            return self.request.session[settings.TOKEN_SESSION_KEY]['access_token']
+
     def get_context_data(self, **kwargs):
-        if 'jwt' not in self.request.session:
-            profile = get_profile(get_client(self.request))
-            return super().get_context_data(profile=json.dumps(profile, indent=4))
+        if 'jwt' in self.request.session:
+            is_authenticated = self.request.user.is_authenticated
+            profile = self.session_user_details
         else:
-            token = self.request.session['jwt']
-            api_response = get_api_response(token)
-            return super().get_context_data(
-                profile=json.dumps(self.session_user_details, indent=4),
-                api_response=api_response
-            )
+            client = get_client(self.request)
+            is_authenticated = client.authorized
+            response = get_profile(client)
+            profile = response.json() if response.status_code == 200 else {}
+        return super().get_context_data(
+            profile=json.dumps(profile, indent=4),
+            api_response=get_api_response(self.api_bearer_token),
+            is_authenticated=is_authenticated
+        )
 
     @property
     def session_user_details(self):
-        if 'jwt' not in self.request.session:
-            return {}
         token = self.request.session['jwt']
         _, claim = jwt.process_jwt(token)
         return claim
 
     def post(self, request):
         if request.POST['action'] == 'delete':
-            delete_user(token=self.request.session['jwt'])
+            delete_user(token=self.api_bearer_token)
         elif request.POST['action'] == 'create':
             create_user(
                 first_name=self.session_user_details['name'],

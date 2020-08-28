@@ -1,38 +1,39 @@
 {% block content %}
 <h1>Internal User Home</h1>
 
-{% if request.user.is_authenticated %}
+{% if is_authenticated %}
     You are logged in locally
     <p>
         <a href="{% url 'auth:logout' %}?next={{ request.path }}">Logout</a>
     </p>
 
-    <h3>Local session details</h3>
+    <h3>User Profile</h3>
     <pre>{{ profile }}</pre>
-
-    {% if request.session.jwt %}
-        <p>JWT: {{ request.session.jwt }}</p>
-        <h3>Remote API response:</h3>
-        <form method="post">
-            {% csrf_token %}
-            {% if api_response.status_code == 200 %}
-                {{ api_response.json }}
-                <button name="action" type="submit" value="delete">Delete</button>
-            {% elif api_response.status_code == 401 %}
-                You don't have a user on remote server <button name="action" type="submit" value="create">Create one now</button>
+    <h3>Remote API response</h3>
+    <form method="post">
+        {% csrf_token %}
+        {% if api_response.status_code == 200 %}
+            {{ api_response.json }}
+            <button name="action" type="submit" value="delete">Delete</button>
+        {% elif api_response.status_code == 401 %}
+            You don't have a user on remote server. 
+            {% if request.session.jwt %}
+                <button name="action" type="submit" value="create">Create one now via OIDC</button>
             {% else %}
-                <p>{{ api_response.status_code }} {{ api_response }}</p>
+                <a href="{% url 'auth:logout' %}?next=/">Logout and restart Oauth2 flow</a>
             {% endif %}
-        </form>
-    {% endif %}
+        {% else %}
+            <p>{{ api_response.status_code }} {{ api_response }}</p>
+        {% endif %}
+    </form>
 
 {% else %}
     You're not logged in locally. 
     <p>
-        <a href="{% url 'auth:login' %}">Login</a>
+        <a href="{% url 'auth:login' %}?user_type=internal">Login using Oauth2</a>
     </p>
     <p>
-        <a href="{% url 'auth:jwt-login' %}">Login using JWT</a>
+        <a href="{% url 'auth:jwt-login' %}">Login using OIDC</a>
     </p>
 {% endif %}
 

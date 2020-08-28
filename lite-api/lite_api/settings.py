@@ -59,8 +59,8 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication'
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -125,7 +125,7 @@ if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     ]
 
     LOGIN_URL = reverse_lazy("user_login")
-    LOGIN_REDIRECT_URL = '/'
+    LOGIN_REDIRECT_URL = reverse_lazy("oauth_init")
 else:
     LOGIN_URL = "/accounts/login/"
     LOGIN_REDIRECT_URL = '/api/exporters'
