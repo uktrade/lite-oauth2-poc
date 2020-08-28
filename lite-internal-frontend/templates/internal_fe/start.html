@@ -1,5 +1,10 @@
 
 {% block content %}
 <h1>Internal User Signin</h1>
-<a href="{% url 'auth:login' %}">Click here to login</a>
+<p>
+	<a href="{% url 'auth:login' %}">Login</a>
+</p>
+<p>
+	<a href="{% url 'auth:jwt-login' %}">Login using JWT</a>
+</p>
 {% endblock %}

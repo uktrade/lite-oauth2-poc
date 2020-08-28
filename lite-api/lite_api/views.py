@@ -1,5 +1,5 @@
 import json
-import urllib.parse as urlparse
+from urllib.parse import urljoin, urlencode, urlparse, parse_qsl, urlunparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,13 +7,11 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from requests_oauthlib import OAuth2Session
-from rest_framework import status
-from rest_framework.generics import GenericAPIView
-from rest_framework import permissions, generics, mixins
-from urllib.parse import urljoin, urlencode
+from rest_framework import permissions, generics, mixins, status
 
 from lite_api import serializers
 from lite_api.settings import env
+
 
 TOKEN_SESSION_KEY = env("TOKEN_SESSION_KEY")
 AUTHORIZATION_SERVER = env("AUTHORIZATION_SERVER")
@@ -29,13 +27,13 @@ INTERNAL_FE_API_CLIENT_CALLBACK_URL = env("INTERNAL_FE_API_CLIENT_CALLBACK_URL")
 
 def add_params_to_url(source_url, params):
 
-    url_parts = list(urlparse.urlparse(source_url))
-    query = dict(urlparse.parse_qsl(url_parts[4]))
+    url_parts = list(urlparse(source_url))
+    query = dict(parse_qsl(url_parts[4]))
     query.update(params)
 
     url_parts[4] = urlencode(query)
 
-    return urlparse.urlunparse(url_parts)
+    return urlunparse(url_parts)
 
 
 def get_oauth_client(request, state, client_id, callback_url, **kwargs):
@@ -69,8 +67,8 @@ class OAuthAuthorize(RedirectView):
 class LoginView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
-        url_parts = list(urlparse.urlparse(self.request.GET["next"]))
-        query = dict(urlparse.parse_qsl(url_parts[4]))
+        url_parts = list(urlparse(self.request.GET["next"]))
+        query = dict(parse_qsl(url_parts[4]))
 
         # Assume exporter if the param is omitted
         user_type = query.get("user_type", "exporter")
@@ -98,13 +96,13 @@ class LoginView(RedirectView):
             return reverse("login")
 
 
-class Home(GenericAPIView):
+class Home(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         return JsonResponse(
             data={"status": f"Hello {request.user.first_name}"}, status=status.HTTP_200_OK,
         )
 
-class CreateDestroyUser(mixins.CreateModelMixin, GenericAPIView):
+class CreateDestroyUser(mixins.CreateModelMixin, generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = serializers.UserSerializer
     http_method_names = ['post', 'delete']
@@ -117,7 +115,7 @@ class CreateDestroyUser(mixins.CreateModelMixin, GenericAPIView):
         return JsonResponse(data={}, status=204)
 
 
-class ExportersListView(GenericAPIView):
+class ExportersListView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         users = User.objects.filter(is_active=True, is_superuser=False)
         serializer = serializers.UserSerializer(users, many=True)
@@ -127,7 +125,7 @@ class ExportersListView(GenericAPIView):
         )
 
 
-class UserProfileView(GenericAPIView):
+class UserProfileView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         return HttpResponse(
             json.dumps(

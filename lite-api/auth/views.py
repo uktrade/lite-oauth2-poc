@@ -24,11 +24,7 @@ def constant_time_compare(val1, val2):
 class AuthView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
-        auth_url_extra_kwargs = {}
-
-        authorization_url, state = get_client(self.request).authorization_url(
-            AUTHORISATION_URL, **auth_url_extra_kwargs,
-        )
+        authorization_url, state = get_client(self.request).authorization_url(AUTHORISATION_URL)
 
         self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
 

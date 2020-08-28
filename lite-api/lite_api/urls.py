@@ -24,12 +24,11 @@ urlpatterns = [
     path('authc/', include('auth.urls')),
     path('auth/', include('authbroker_client.urls')),
     path("login", views.LoginView.as_view(), name="user_login"),
-    path("", views.Home.as_view(), name="index"),
+    path("index", views.Home.as_view(), name="index"),
     path("user/", views.CreateDestroyUser.as_view(), name="user"),
     path('accounts/', include('django.contrib.auth.urls')),
     path('oauth-init', views.OAuthAuthorize.as_view(), name="oauth_init"),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path("api/exporters", views.ExportersListView.as_view(), name="exporters"),
     path("user-profile/", views.UserProfileView.as_view(), name="profile"),
-    path("allauth-accounts/", include('allauth.urls')),
 ]

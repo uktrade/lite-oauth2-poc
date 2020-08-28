@@ -55,12 +55,12 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.auth0',
-    'lite_api.apps.LiteApiConfig',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication'
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -80,7 +80,6 @@ SIMPLE_JWT = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'oauth2_provider.backends.OAuth2Backend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
@@ -212,8 +211,3 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL'),
     },
 }
-
-
-ALLOWED_REDIRECT_HOSTS = ['localhost:9000', 'localhost:9001']
-
-ACCOUNT_ADAPTER = 'auth.adapters.AccountAdapter'

@@ -37,7 +37,13 @@ class AuthView(RedirectView):
     """
 
     def get_redirect_url(self, *args, **kwargs):
-        return f'{settings.AUTHBROKER_LOGIN_URL}?next={self.request.build_absolute_uri(reverse("home"))}'
+        authorization_url, state = get_client(self.request).authorization_url(AUTHORISATION_URL)
+
+        self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
+
+        updated_url = add_user_type_to_url(authorization_url, {"user_type": "internal"})
+
+        return updated_url
 
 
 class AuthCallbackView(View):
@@ -82,7 +88,7 @@ class Auth0OAuth2Adapter(views.Auth0OAuth2Adapter):
         return super().complete_login(request, app, token, response)
 
     def get_callback_url(self, request, app):
-        return request.build_absolute_uri(reverse('auth:callback'))
+        return request.build_absolute_uri(reverse('auth:jwt-callback'))
 
  
 oauth2_login = views.OAuth2LoginView.adapter_view(Auth0OAuth2Adapter)
