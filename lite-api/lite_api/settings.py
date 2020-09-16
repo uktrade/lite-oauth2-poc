@@ -30,7 +30,7 @@ env = Env(
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =  env('DJANGO_SECRET_KEY')
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
@@ -51,16 +51,14 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'rest_framework',
     'oauth2_provider',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.auth0',
+    'mozilla_django_oidc',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
+        'auth.views.DRFAuthBackend',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -68,20 +66,8 @@ REST_FRAMEWORK = {
 }
 
 
-SIMPLE_JWT = {
-    'ALGORITHM': 'RS256',
-    'VERIFYING_KEY': '\n'.join(env.list('JWT_VERIFICATION_KEY')),
-    'AUDIENCE': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_ID'),
-    'ISSUER': env.str('DJANGO_ALLAUTH_AUTH0_URL') + '/',
-    'USER_ID_FIELD': 'email',
-    'USER_ID_CLAIM': 'email',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.UntypedToken',),
-    'JTI_CLAIM': 'sub',
-}
-
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'auth.views.AuthBackend',
 )
 
 MIDDLEWARE = [
@@ -195,19 +181,26 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 SITE_ID = 1
 
-# Django Allauth
-SOCIALACCOUNT_PROVIDERS = {
-    'auth0': {
-        'APP': {
-            'client_id': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_ID'),
-            'secret': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_SECRET'),
-            'key': ''
-        },
-        'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL'),
-    },
-}
+TOKEN_SESSION_KEY = env.str('TOKEN_SESSION_KEY')
+
+# OIDC
+OIDC_RP_CLIENT_ID = env.str('OIDC_RP_CLIENT_ID')
+OIDC_RP_CLIENT_SECRET = env.str('OIDC_RP_CLIENT_SECRET')
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_STORE_ID_TOKEN = True
+OIDC_RP_SCOPES = 'openid email first_name last_name'
+OIDC_USE_NONCE = False
+OIDC_CREATE_USER = True
+
+OIDC_PROVIDER_URL = env.str('OIDC_PROVIDER_URL')
+OIDC_OP_JWKS_ENDPOINT = f'{OIDC_PROVIDER_URL}/.well-known/jwks.json'
+OIDC_OP_AUTHORIZATION_ENDPOINT = f'{OIDC_PROVIDER_URL}/authorize'
+OIDC_OP_TOKEN_ENDPOINT = f'{OIDC_PROVIDER_URL}/oauth/token'
+OIDC_OP_USER_ENDPOINT = f'{OIDC_PROVIDER_URL}/userinfo'
+
+OIDC_DRF_AUTH_BACKEND = 'auth.views.AuthBackend'

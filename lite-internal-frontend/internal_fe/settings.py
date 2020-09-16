@@ -50,15 +50,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.auth0',
+    'mozilla_django_oidc',
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
 )
 
 MIDDLEWARE = [
@@ -95,6 +91,7 @@ SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="internal")
 
 WSGI_APPLICATION = 'internal_fe.wsgi.application'
 
+LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")
 
 # Authbroker config
@@ -152,24 +149,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Django Allauth
-SOCIALACCOUNT_PROVIDERS = {
-    'auth0': {
-        'APP': {
-            'client_id': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_ID'),
-            'secret': env.str('DJANGO_ALLAUTH_AUTH0_CLIENT_SECRET'),
-            'key': ''
-        },
-        'AUTH0_URL': env.str('DJANGO_ALLAUTH_AUTH0_URL'),
-    },
-}
-
-SOCIALACCOUNT_ADAPTER = 'auth.adapters.SocialAccountAdapter'
-
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-
 SITE_ID = 1
 
 LITE_API_URL = env.str('LITE_API_URL')
 
 TOKEN_SESSION_KEY = env.str('TOKEN_SESSION_KEY')
+
+# OIDC
+OIDC_RP_CLIENT_ID = env.str('OIDC_RP_CLIENT_ID')
+OIDC_RP_CLIENT_SECRET = env.str('OIDC_RP_CLIENT_SECRET')
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_STORE_ID_TOKEN = True
+OIDC_CREATE_USER = True
+
+OIDC_PROVIDER_URL = env.str('OIDC_PROVIDER_URL')
+OIDC_OP_JWKS_ENDPOINT = f'{OIDC_PROVIDER_URL}/.well-known/jwks.json'
+OIDC_OP_AUTHORIZATION_ENDPOINT = f'{OIDC_PROVIDER_URL}/authorize'
+OIDC_OP_TOKEN_ENDPOINT = f'{OIDC_PROVIDER_URL}/oauth/token'
+OIDC_OP_USER_ENDPOINT = f'{OIDC_PROVIDER_URL}/userinfo'

@@ -21,5 +21,6 @@ from internal_fe import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", views.Home.as_view(), name="home"),
+    path('oidc/', include('mozilla_django_oidc.urls')),
     path("auth/", include("auth.urls")),
 ]

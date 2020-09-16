@@ -2,17 +2,14 @@ import secrets
 import urllib.parse as urlparse
 from urllib.parse import urlencode
 
-from allauth.socialaccount.providers.auth0 import views
-
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse_lazy, reverse
 from django.utils.encoding import force_bytes
 from django.views.generic.base import RedirectView, View
 
-from auth.utils import get_client, AUTHORISATION_URL, TOKEN_SESSION_KEY, TOKEN_URL, get_profile
+from auth import utils
 
 
 def constant_time_compare(val1, val2):
@@ -37,9 +34,9 @@ class AuthView(RedirectView):
     """
 
     def get_redirect_url(self, *args, **kwargs):
-        authorization_url, state = get_client(self.request).authorization_url(AUTHORISATION_URL)
+        authorization_url, state = utils.get_client(self.request).authorization_url(utils.AUTHORISATION_URL)
 
-        self.request.session[TOKEN_SESSION_KEY + "_oauth_state"] = state
+        self.request.session[utils.TOKEN_SESSION_KEY + "_oauth_state"] = state
 
         updated_url = add_user_type_to_url(authorization_url, {"user_type": "internal"})
 
@@ -58,38 +55,25 @@ class AuthCallbackView(View):
         if not auth_code:
             return redirect(reverse_lazy("auth:login"))
 
-        state = self.request.session.get(TOKEN_SESSION_KEY + "_oauth_state", None)
+        state = self.request.session.get(utils.TOKEN_SESSION_KEY + "_oauth_state", None)
         if not state:
             return HttpResponseServerError()
 
         if not constant_time_compare(auth_state, state):
             return HttpResponseServerError()
 
-        client = get_client(self.request)
+        client = utils.get_client(self.request)
 
         try:
             token = client.fetch_token(
-                TOKEN_URL, client_secret=settings.AUTHBROKER_CLIENT_SECRET, code=auth_code
+                utils.TOKEN_URL, client_secret=settings.AUTHBROKER_CLIENT_SECRET, code=auth_code
             )
 
-            self.request.session[TOKEN_SESSION_KEY] = dict(token)
+            self.request.session[utils.TOKEN_SESSION_KEY] = dict(token)
 
-            del self.request.session[TOKEN_SESSION_KEY + "_oauth_state"]
+            del self.request.session[utils.TOKEN_SESSION_KEY + "_oauth_state"]
 
         except Exception:
             raise Exception
 
         return redirect(settings.LOGIN_REDIRECT_URL)
-
-
-class Auth0OAuth2Adapter(views.Auth0OAuth2Adapter):
-    def complete_login(self, request, app, token, response):
-        request.session['jwt'] = response['id_token']
-        return super().complete_login(request, app, token, response)
-
-    def get_callback_url(self, request, app):
-        return request.build_absolute_uri(reverse('auth:jwt-callback'))
-
- 
-oauth2_login = views.OAuth2LoginView.adapter_view(Auth0OAuth2Adapter)
-oauth2_callback = views.OAuth2CallbackView.adapter_view(Auth0OAuth2Adapter)
