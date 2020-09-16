@@ -3,7 +3,7 @@ from urllib.parse import urljoin, urlencode, urlparse, parse_qsl, urlunparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from requests_oauthlib import OAuth2Session
@@ -101,6 +101,7 @@ class Home(generics.GenericAPIView):
         return JsonResponse(
             data={"status": f"Hello {request.user.email}"}, status=status.HTTP_200_OK,
         )
+
 
 class RetrieveCreateDestroyUser(mixins.RetrieveModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
