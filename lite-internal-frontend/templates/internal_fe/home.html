@@ -1,16 +1,19 @@
-{% block content %}
-<h1>Internal User Home</h1>
+<html>
 
-{% if is_authenticated %}
+<body>
+    {% block content %}
+    <h1>Internal User Home</h1>
+
+    {% if is_authenticated %}
     You are logged in locally
 
     {% if request.session.oidc_id_token %}
-      <form action="{% url 'oidc_logout' %}" method="post">
+    <form action="{% url 'oidc_logout' %}" method="post">
         {% csrf_token %}
         <input type="submit" value="Log out">
-      </form>
+    </form>
     {% else %}
-      <a href="{% url 'auth:logout' %}?next=/">Logout and restart Oauth2 flow</a>
+    <a href="{% url 'auth:logout' %}?next=/">Logout and restart Oauth2 flow</a>
     {% endif %}
 
     <h3>User Profile</h3>
@@ -20,21 +23,21 @@
     <form method="post">
         {% csrf_token %}
         {% if api_response.status_code == 200 %}
-            {{ api_response.json }}
-            <button name="action" type="submit" value="delete">Delete</button>
+        {{ api_response.json }}
+        <button name="action" type="submit" value="delete">Delete</button>
         {% elif api_response.status_code == 401 %}
-            You don't have a user on remote server.
-            {% if request.session.oidc_id_token %}
-                <button name="action" type="submit" value="create">Create one now via OIDC</button>
-            {% else %}
-                <a href="{% url 'auth:logout' %}?next=/">Logout and restart Oauth2 flow</a>
-            {% endif %}
+        You don't have a user on remote server.
+        {% if request.session.oidc_id_token %}
+        <button name="action" type="submit" value="create">Create one now via OIDC</button>
         {% else %}
-            <p>{{ api_response.status_code }} {{ api_response }}</p>
+        <a href="{% url 'auth:logout' %}?next=/">Logout and restart Oauth2 flow</a>
+        {% endif %}
+        {% else %}
+        <p>{{ api_response.status_code }} {{ api_response }}</p>
         {% endif %}
     </form>
 
-{% else %}
+    {% else %}
     You're not logged in locally.
     <p>
         <a href="{% url 'auth:login' %}?user_type=internal">Login using Oauth2</a>
@@ -42,6 +45,9 @@
     <p>
         <a href="{% url 'oidc_authentication_init' %}">Login using OIDC</a>
     </p>
-{% endif %}
+    {% endif %}
 
-{% endblock %}
+    {% endblock %}
+</body>
+
+</html>
