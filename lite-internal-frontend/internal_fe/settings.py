@@ -95,12 +95,6 @@ WSGI_APPLICATION = "internal_fe.wsgi.application"
 LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")
 
-# Authbroker config
-AUTHBROKER_URL = env("AUTHBROKER_URL")
-
-AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
-AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
-
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
 
@@ -147,8 +141,6 @@ STATIC_URL = "/static/"
 SITE_ID = 1
 
 LITE_API_URL = env.str("LITE_API_URL")
-
-TOKEN_SESSION_KEY = env.str("TOKEN_SESSION_KEY")
 
 # OIDC
 OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
