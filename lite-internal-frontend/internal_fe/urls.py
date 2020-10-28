@@ -15,12 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 
 from internal_fe import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", views.Start.as_view(), name="start"),
-    path("index", views.Home.as_view(), name="home"),
-    path("auth/", include("auth.urls")),
+    path("", views.Home.as_view(), name="home"),
+    path('oidc/', include('mozilla_django_oidc.urls')),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

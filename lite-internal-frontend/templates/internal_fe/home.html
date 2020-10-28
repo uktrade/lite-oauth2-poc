@@ -1,8 +1,46 @@
+<html>
 
-{% block content %}
-<h1>Internal User Home</h1>
+<body>
+    {% block content %}
+    <h1>Internal User Home</h1>
 
-<h3>Logged in user details</h3>
-<p>{{ profile.first_name }} {{ profile.last_name }}</p>
-<p>{{ profile.email }}</p>
-{% endblock %}
+    {% if is_authenticated %}
+    You are logged in locally
+
+    {% if request.session.oidc_id_token %}
+    <form action="{% url 'oidc_logout' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Log out">
+    </form>
+    {% endif %}
+
+    <h3>User Profile</h3>
+    <pre>{{ profile }}</pre>
+
+    <h3>Remote API response</h3>
+    <form method="post">
+        {% csrf_token %}
+        {% if api_response.status_code == 200 %}
+        {{ api_response.json }}
+        <button name="action" type="submit" value="delete">Delete</button>
+        {% elif api_response.status_code == 401 %}
+        You don't have a user on remote server.
+        {% if request.session.oidc_id_token %}
+        <button name="action" type="submit" value="create">Create one now via OIDC</button>
+        {% endif %}
+        {% else %}
+        <p>{{ api_response.status_code }} {{ api_response }}</p>
+        {% endif %}
+    </form>
+
+    {% else %}
+    You're not logged in locally.
+    <p>
+        <a href="{% url 'oidc_authentication_init' %}">Login using OIDC</a>
+    </p>
+    {% endif %}
+
+    {% endblock %}
+</body>
+
+</html>

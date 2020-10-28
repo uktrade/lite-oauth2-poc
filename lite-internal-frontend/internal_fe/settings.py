@@ -23,16 +23,13 @@ ENV_FILE = os.path.join(BASE_DIR, ".env")
 if os.path.exists(ENV_FILE):
     Env.read_env(ENV_FILE)
 
-env = Env(
-    ALLOWED_HOSTS=(str, ""),
-    DEBUG=(bool, False),
-)
+env = Env(ALLOWED_HOSTS=(str, ""), DEBUG=(bool, False),)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
@@ -43,68 +40,69 @@ ALLOWED_HOSTS = json.loads(env("ALLOWED_HOSTS")) if env("ALLOWED_HOSTS") else []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "mozilla_django_oidc",
+    "debug_toolbar"
+]
+
+AUTHENTICATION_BACKENDS = ("mozilla_django_oidc.auth.OIDCAuthenticationBackend",)
+
+INTERNAL_IPS = [
+    '127.0.0.1',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'internal_fe.urls'
+ROOT_URLCONF = "internal_fe.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", True)
 SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="internal")
 
-WSGI_APPLICATION = 'internal_fe.wsgi.application'
+WSGI_APPLICATION = "internal_fe.wsgi.application"
 
+LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")
-
-# Authbroker config
-AUTHBROKER_URL = env("AUTHBROKER_URL")
-AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
-AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
 
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
-
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "auth.backends.AuthbrokerBackend",
-]
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db(),
+    "default": env.db(),
 }
 
 
@@ -113,26 +111,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -144,4 +136,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
+
+SITE_ID = 1
+
+LITE_API_URL = env.str("LITE_API_URL")
+
+# OIDC
+OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = env.str("OIDC_RP_CLIENT_SECRET")
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_STORE_ID_TOKEN = True
+OIDC_STORE_ACCESS_TOKEN = True
+OIDC_CREATE_USER = True
+
+OIDC_PROVIDER_URL = env.str("OIDC_PROVIDER_URL")
+OIDC_OP_JWKS_ENDPOINT = f"{OIDC_PROVIDER_URL}/.well-known/jwks.json"
+OIDC_OP_AUTHORIZATION_ENDPOINT = f"{OIDC_PROVIDER_URL}/authorize"
+OIDC_OP_TOKEN_ENDPOINT = f"{OIDC_PROVIDER_URL}/oauth/token"
+OIDC_OP_USER_ENDPOINT = f"{OIDC_PROVIDER_URL}/userinfo"

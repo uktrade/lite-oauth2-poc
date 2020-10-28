@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-from django.urls import reverse_lazy
 from environ import Env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -23,7 +22,6 @@ if os.path.exists(ENV_FILE):
     Env.read_env(ENV_FILE)
 
 env = Env(
-    ALLOWED_HOSTS=(str, ""),
     DEBUG=(bool, False),
 )
 
@@ -31,12 +29,12 @@ env = Env(
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =  env('DJANGO_SECRET_KEY')
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 
 # Application definition
@@ -49,13 +47,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django.contrib.sites',
     'rest_framework',
-    'oauth2_provider',
+    'mozilla_django_oidc',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
+        'auth.views.DRFAuthBackend',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+
 AUTHENTICATION_BACKENDS = (
-    'oauth2_provider.backends.OAuth2Backend',
-    'django.contrib.auth.backends.ModelBackend',
+    'auth.views.AuthBackend',
 )
 
 MIDDLEWARE = [
@@ -64,7 +73,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -76,35 +84,6 @@ SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="api")
 
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
-
-FEATURE_ENFORCE_STAFF_SSO_ENABLED = env('FEATURE_ENFORCE_STAFF_SSO_ENABLED', default=False)
-
-# authbroker config
-if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
-    INSTALLED_APPS.append("authbroker_client",)
-
-    AUTHBROKER_URL = env("AUTHBROKER_URL")
-    AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
-    AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
-    AUTHBROKER_TOKEN_SESSION_KEY = env("AUTHBROKER_TOKEN_SESSION_KEY")
-    AUTHBROKER_STAFF_SSO_SCOPE = env('AUTHBROKER_STAFF_SSO_SCOPE')
-
-    DIRECTORY_SSO_AUTHBROKER_URL = env("DIRECTORY_SSO_AUTHBROKER_URL")
-    DIRECTORY_SSO_AUTHBROKER_CLIENT_ID = env("DIRECTORY_SSO_AUTHBROKER_CLIENT_ID")
-    DIRECTORY_SSO_AUTHBROKER_CLIENT_SECRET = env("DIRECTORY_SSO_AUTHBROKER_CLIENT_SECRET")
-
-    AUTHENTICATION_BACKENDS = [
-        "django.contrib.auth.backends.ModelBackend",
-        "auth.backends.AuthbrokerBackend",
-        "authbroker_client.backends.AuthbrokerBackend",
-    ]
-
-    LOGIN_URL = reverse_lazy("user_login")
-    LOGIN_REDIRECT_URL = reverse_lazy("oauth_init")
-else:
-    LOGIN_URL = "/accounts/login/"
-    LOGIN_REDIRECT_URL = '/api/exporters'
-
 
 TEMPLATES = [
     {
@@ -170,3 +149,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+SITE_ID = 1
+
+## OIDC
+
+# client id/secret are not really required in the API
+# mozilla_django_oidc expects these variables in settings hence they are included here
+OIDC_RP_CLIENT_ID = ""
+OIDC_RP_CLIENT_SECRET = ""
+
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_STORE_ID_TOKEN = True
+OIDC_RP_SCOPES = 'openid email first_name last_name'
+OIDC_USE_NONCE = False
+OIDC_CREATE_USER = True
+
+OIDC_PROVIDER_URL = env.str('OIDC_PROVIDER_URL')
+OIDC_OP_JWKS_ENDPOINT = f'{OIDC_PROVIDER_URL}/.well-known/jwks.json'
+OIDC_OP_AUTHORIZATION_ENDPOINT = f'{OIDC_PROVIDER_URL}/authorize'
+OIDC_OP_TOKEN_ENDPOINT = f'{OIDC_PROVIDER_URL}/oauth/token'
+OIDC_OP_USER_ENDPOINT = f'{OIDC_PROVIDER_URL}/userinfo'
+
+OIDC_DRF_AUTH_BACKEND = 'auth.views.AuthBackend'
