@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-from django.urls import reverse_lazy
 from environ import Env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -50,13 +49,11 @@ INSTALLED_APPS = [
     'django_extensions',
     'django.contrib.sites',
     'rest_framework',
-    'oauth2_provider',
     'mozilla_django_oidc',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         # 'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
         'auth.views.DRFAuthBackend',
     ),
@@ -76,7 +73,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -88,34 +84,6 @@ SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="api")
 
 # requests_oauthlib
 OAUTHLIB_INSECURE_TRANSPORT = env("OAUTHLIB_INSECURE_TRANSPORT", default=0)
-
-FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED', default=False)
-# authbroker config
-if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
-    INSTALLED_APPS.append("authbroker_client",)
-
-    AUTHBROKER_URL = env("AUTHBROKER_URL")
-    AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
-    AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
-    AUTHBROKER_TOKEN_SESSION_KEY = env("AUTHBROKER_TOKEN_SESSION_KEY")
-    AUTHBROKER_STAFF_SSO_SCOPE = env('AUTHBROKER_STAFF_SSO_SCOPE')
-
-    DIRECTORY_SSO_AUTHBROKER_URL = env("DIRECTORY_SSO_AUTHBROKER_URL")
-    DIRECTORY_SSO_AUTHBROKER_CLIENT_ID = env("DIRECTORY_SSO_AUTHBROKER_CLIENT_ID")
-    DIRECTORY_SSO_AUTHBROKER_CLIENT_SECRET = env("DIRECTORY_SSO_AUTHBROKER_CLIENT_SECRET")
-
-    AUTHENTICATION_BACKENDS = [
-        "django.contrib.auth.backends.ModelBackend",
-        "auth.backends.AuthbrokerBackend",
-        "authbroker_client.backends.AuthbrokerBackend",
-    ]
-
-    LOGIN_URL = reverse_lazy("user_login")
-    LOGIN_REDIRECT_URL = reverse_lazy("oauth_init")
-else:
-    LOGIN_URL = "/accounts/login/"
-    LOGIN_REDIRECT_URL = '/api/exporters'
-
 
 TEMPLATES = [
     {
@@ -186,11 +154,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 SITE_ID = 1
 
-TOKEN_SESSION_KEY = env.str('TOKEN_SESSION_KEY')
+## OIDC
 
-# OIDC
-OIDC_RP_CLIENT_ID = env.str('OIDC_RP_CLIENT_ID')
-OIDC_RP_CLIENT_SECRET = env.str('OIDC_RP_CLIENT_SECRET')
+# client id/secret are not really required in the API
+# mozilla_django_oidc expects these variables in settings hence they are included here
+OIDC_RP_CLIENT_ID = ""
+OIDC_RP_CLIENT_SECRET = ""
+
 OIDC_RP_SIGN_ALGO = 'RS256'
 OIDC_STORE_ID_TOKEN = True
 OIDC_RP_SCOPES = 'openid email first_name last_name'
